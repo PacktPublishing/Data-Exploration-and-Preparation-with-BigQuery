@@ -1,2 +1,3 @@
-US accidents data for hands on example in chapter 4
-Source: https://www.kaggle.com/datasets/cityofLA/los-angeles-traffic-collision-data
+Traffic collision incidents in the City of Los Angeles for hands on example in chapter 4
+archive.zip contains Traffic_Collision_Data_from_2010_to_Present.csv
+Source: https://data.lacity.org/Public-Safety/Traffic-Collision-Data-from-2010-to-Present/d5tf-ez2w
