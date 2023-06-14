@@ -1,0 +1,38 @@
+Dataset: https://console.cloud.google.com/marketplace/product/bigquery-public-datasets/google-search-trends
+Section: Advanced Querying Techniques
+
+#calculates the average rank of a search term in the top_terms table in the Charlotte NC designated market area (dma)
+https://console.cloud.google.com/bigquery?sq=245732404565:260f22115c164665bea681eb0acb3ba4
+ 
+SELECT DISTINCT(term), rank, refresh_date, 
+   (SELECT AVG(rank) FROM `bigquery-public-data.google_trends.top_terms` WHERE refresh_date = "2023-06-10" 
+AND dma_name = "Charlotte NC") AS avg_rank 
+FROM `bigquery-public-data.google_trends.top_terms` 
+WHERE refresh_date = "2023-06-10" 
+
+
+#finds the terms with the highest peak interest each year (experimental)
+https://console.cloud.google.com/bigquery?sq=245732404565:db3a78162d324e0891c8f9d4ce012df4
+
+WITH yearly_peaks AS ( 
+  SELECT 
+	term, 
+	EXTRACT(YEAR FROM week) AS year, 
+	rank, 
+	ROW_NUMBER() OVER (PARTITION BY EXTRACT(YEAR FROM 	week) ORDER BY rank DESC) AS peak_rank 
+  FROM `bigquery-public-data.google_trends.top_terms` 
+) 
+SELECT term, year, rank 
+FROM yearly_peaks 
+WHERE peak_rank = 1 
+ORDER BY year 
+
+#top 25 terms for the latest week, sorted by rank
+https://console.cloud.google.com/bigquery?sq=245732404565:52e3ad01a7d14a3caf7d2463c625868b
+
+SELECT term, ARRAY_AGG(STRUCT(rank,week) ORDER BY week DESC LIMIT 1) AS x 
+FROM `bigquery-public-data.google_trends.top_terms` 
+WHERE 
+    refresh_date = (SELECT MAX(refresh_date) FROM `bigquery-public-data.google_trends.top_terms`) 
+GROUP BY term 
+ORDER BY (SELECT rank FROM UNNEST(x)) 
